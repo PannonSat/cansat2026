@@ -11,19 +11,19 @@ const unsigned int BMP_size = 3;
 float BMP_Data[BMP_size] = {0};
 //GLOBALS
 
-void BMP_run();
 static float calc_Altitude(float pressure);
 
 
 void BMP_init(){
-  bool status = bmp.begin(BMP280_ADDRESS_ALT, BMP280_CHIPID);
+  bool status = bmp.begin();
   if (!status) {
     Serial.print("csicska bmp nem jó"); // BMP not initialzed, error :/
   }else{
     //SHORT LED BEEP
     digitalWrite(2, HIGH);
-    delay(200);
+    delay(100);
     digitalWrite(2, LOW);
+    Serial.println("BMP280 init succesful!");
     BMP_initialized = true;
   }
 

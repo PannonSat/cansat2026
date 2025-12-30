@@ -7,7 +7,7 @@ class BMP_DC{
     float temperature;
     float altitude;
 
-    long long int timestamp;
+    unsigned long int timestamp;
 
     void Write_BMP_Data(float pres, float temp, float alt);
 };
@@ -17,7 +17,7 @@ class IMU_DC{
     float ax, ay, az;
     float gx, gy, gz;
 
-    long long int timestamp;
+    unsigned long int timestamp;
 
     void Write_IMU_reading(float accx, float accy, float accz, float gyrx, float gyry, float gyrz);
 
@@ -38,6 +38,8 @@ class GPS_DC{
     float predicted_current_distance;
     // if gps has been updated
     bool isUpdated;
+
+    unsigned long timestamp;
     // Writes to the DataBank: latitude, longitude, course
     void Write_GPS_reading(double lat, double lng, double cor, double spd, bool update);
     // Writes the base home location to the DataBank

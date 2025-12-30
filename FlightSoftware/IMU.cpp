@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <Arduino_LSM6DSOX.h>
 
-#include "USB_Serial.h"
+#include "Settings.h"
 #include "LED.h"
 #include "DataBank.h"
 #include "IMU.h"
@@ -11,11 +11,12 @@
 #define DEG_TO_RAD 0.0174533
 #define METERS_PER_DEGREE 111320.0
 
-//Calculation vars
-float offset_ax, offset_ay, gps_course, gps_speed;
+// Calculation globals
+float offset_ax, offset_ay;
 float last_alt, v_x, v_y, pos_x, pos_y, v_vert;
 float tilt_x, tilt_y;
 
+// Max spinrate when IMU is the primary for the calculation
 float TUMBLE_THRESHOLD = 200;
 
 bool IMU_initialized = false;
@@ -49,7 +50,7 @@ void Calibrate_IMU(void) {
   LOG("Calibration Done.");
 }
 
-void Predict_Landing(float v_x, float v_y, float pos_x, float pos_y, float current_alt){
+void Predict_Landing(float current_alt){
   float time_to_impact = 0;
   float predicted_distance = 0;
   float current_dist = sqrt(pow(pos_x, 2) + pow(pos_y, 2));
@@ -63,8 +64,8 @@ void Predict_Landing(float v_x, float v_y, float pos_x, float pos_y, float curre
 }
 
 void Correct_with_GPS(float timestep){
-  gps_course = MainBank.GPS.course;
-  gps_speed = MainBank.GPS.speed;
+  double gps_course = MainBank.GPS.course;
+  double gps_speed = MainBank.GPS.speed;
   float speedMS = gps_speed * KMH_TO_MS;
   float courseRad = gps_course * DEG_TO_RAD;
 
@@ -133,5 +134,5 @@ void IMU_main_logic(void){
   }
   
   Correct_with_GPS(timestep);
-  Predict_Landing(v_x, v_y, pos_x, pos_y, current_alt);
+  Predict_Landing(current_alt);
 }

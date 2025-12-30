@@ -3,7 +3,7 @@
 #include <SD.h>
 
 #include "SD1.h"
-#include "USB_Serial.h"
+#include "Settings.h"
 #include "LED.h"
 #include "DataBank.h"
 

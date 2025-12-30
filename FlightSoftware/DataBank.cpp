@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#include "USB_Serial.h"
+#include "Settings.h"
 #include "BMP.h"
 #include "GPS.h"
 #include "SD1.h"
@@ -35,6 +35,8 @@ void GPS_DC::Write_GPS_reading(double lat, double lng, double cor, double spd, b
   course = cor;
   speed = spd;
   isUpdated = update;
+  
+  timestamp = millis();
 }
 
 void GPS_DC::Write_GPS_home(double h_lat, double h_lng) {

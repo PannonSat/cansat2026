@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#include "USB_Serial.h"
+#include "Settings.h"
 #include "LED.h"
 
 void LED_init(){
@@ -8,8 +8,8 @@ void LED_init(){
   LOG("LED succesfully initialized! ");
 }
 
-void LED_beep(float lenght){
+void LED_beep(float length){
   digitalWrite(2, HIGH);
-  delay(lenght);
+  delay(length);
   digitalWrite(2, LOW);
 }

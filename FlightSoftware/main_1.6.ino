@@ -9,7 +9,7 @@
 #include "IMU.h"
 #include "DataBank.h"
 #include "TEMT.h"
-#include "USB_Serial.h"
+#include "Settings.h"
 
 
 // Timer Channels

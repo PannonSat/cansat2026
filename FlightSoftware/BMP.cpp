@@ -2,7 +2,7 @@
 #include <Adafruit_BMP280.h>
 #include <Wire.h>
 
-#include "USB_Serial.h"
+#include "Settings.h"
 #include "LED.h"
 #include "BMP.h"
 #include "DataBank.h"
@@ -17,7 +17,7 @@ static float calc_Altitude(float pressure);
 void BMP_init(){
   bool status = bmp.begin();
   if (!status) {
-    LOG("csicska bmp nem jó"); // BMP not initialzed, error :/
+    LOG("BMP failed to initalize! Check wiring!"); // BMP not initialzed, error :/
   }else{
     //SHORT LED BEEP
     LED_beep(100);

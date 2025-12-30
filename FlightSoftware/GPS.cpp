@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <TinyGPS++.h>
 
-#include "USB_Serial.h"
+#include "Settings.h"
 #include "GPS.h"
 #include "LED.h"
 #include "DataBank.h"

@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <TEMT6000.h>
 
-#include "USB_Serial.h"
+#include "Settings.h"
 #include "LED.h"
 #include "TEMT.h"
 #include "DataBank.h"

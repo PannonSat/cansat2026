@@ -2,14 +2,14 @@
 #include <Adafruit_BMP280.h>
 #include <Wire.h>
 
+#include "USB_Serial.h"
+#include "LED.h"
 #include "BMP.h"
+#include "DataBank.h"
 
-
+//GLOBALS
 Adafruit_BMP280 bmp;
 bool BMP_initialized = false;
-const unsigned int BMP_size = 3;
-float BMP_Data[BMP_size] = {0};
-//GLOBALS
 
 static float calc_Altitude(float pressure);
 
@@ -17,13 +17,11 @@ static float calc_Altitude(float pressure);
 void BMP_init(){
   bool status = bmp.begin();
   if (!status) {
-    Serial.print("csicska bmp nem jó"); // BMP not initialzed, error :/
+    LOG("csicska bmp nem jó"); // BMP not initialzed, error :/
   }else{
     //SHORT LED BEEP
-    digitalWrite(2, HIGH);
-    delay(100);
-    digitalWrite(2, LOW);
-    Serial.println("BMP280 init succesful!");
+    LED_beep(100);
+    LOG("BMP280 init succesful!");
     BMP_initialized = true;
   }
 
@@ -38,18 +36,8 @@ void BMP_init(){
 
 void BMP_run(){
   float pressure = bmp.readPressure();
-  BMP_Data[0] = pressure;
-  BMP_Data[1] = bmp.readTemperature();
-  BMP_Data[2] = calc_Altitude(pressure);
-  // storing the data in a static array
-}
 
-float* get_BMP_Data(){
-  return BMP_Data;
-}
-
-int len_BMP_Data(){
-  return BMP_size;
+  MainBank.BMP.Write_BMP_Data(pressure, bmp.readTemperature(), calc_Altitude(pressure));
 }
 
 static float calc_Altitude(float pressure){

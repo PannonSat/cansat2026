@@ -1,7 +1,10 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <SD.h>
+
 #include "SD1.h"
+#include "USB_Serial.h"
+#include "LED.h"
 #include "DataBank.h"
 
 const int CS_PIN = 5;
@@ -14,72 +17,91 @@ String getCurrentTimeString();
 
 void SD_init(){
   if (!SD.begin(CS_PIN)) {
-    Serial.println("Card failed or not present");
+    LOG("Card failed or not present");
   }else{
     //Short LED beep
-
-    digitalWrite(2, HIGH);
-    delay(200);
-    digitalWrite(2, LOW);
+    LED_beep(100);
 
     SD_initialized = true;
-    Serial.println("SD succesfully initialized!");
+    LOG("SD succesfully initialized!");
     start_time = millis();
   }
+}
+
+void Add_BMP_String(String& Data){
+  String BMP_Data = " ";
+
+  BMP_Data += String(MainBank.BMP.temperature);
+  BMP_Data += ", ";
+  BMP_Data += String(MainBank.BMP.pressure);
+  BMP_Data += ", ";
+  BMP_Data += String(MainBank.BMP.altitude);
+  BMP_Data += ", ";
+
+  Data += BMP_Data;
+}
+
+void Add_IMU_String(String& Data){
+  String IMU_Data = " ";
+
+  IMU_Data += String(MainBank.IMU.ax); IMU_Data += ", ";
+  IMU_Data += String(MainBank.IMU.ay); IMU_Data += ", ";
+  IMU_Data += String(MainBank.IMU.az); IMU_Data += ", ";
+
+  IMU_Data += String(MainBank.IMU.gx); IMU_Data += ", ";
+  IMU_Data += String(MainBank.IMU.gy); IMU_Data += ", ";
+  IMU_Data += String(MainBank.IMU.gz); IMU_Data += ", ";
+
+  Data += IMU_Data;
+}
+
+void Add_GPS_String(String& Data){
+  String GPS_Data = " ";
+
+  GPS_Data += String(MainBank.GPS.latitude);
+  GPS_Data += ", ";
+  GPS_Data += String(MainBank.GPS.longitude);
+  GPS_Data += ", ";
+  GPS_Data += String(MainBank.GPS.course);
+  GPS_Data += ", ";
+  GPS_Data += String(MainBank.GPS.speed);
+  GPS_Data += ", ";
+
+  Data += GPS_Data;
+}
+
+void Add_TEMT_String(String& Data){
+  String TEMT_Data = " ";
+
+  TEMT_Data += String(MainBank.TEMT.luminance);
+  TEMT_Data += ", ";
+  TEMT_Data += String(MainBank.TEMT.isLight);
+
+  Data += TEMT_Data;
 }
 
 void SD_run(){
   // IMU, GPS, BMP, TEMT
   // CSV format
-
-  float* IMU_Acc = databank.AccData;
-  float* IMU_Gyro = databank.GyroData;
-
+  
   String current_time = getCurrentTimeString();
   String timestamp = "[" + current_time + "]: ";
+  String date = "12.30 "; // CHANGE MANUALLY BEFORE START
 
-
-  File IMU_file = SD.open("IMU_Data.txt", FILE_WRITE);
+  String Data = " ";
   
-  IMU_file.print(timestamp);
-  for(int i = 0;i <3; i++) {IMU_file.print(IMU_Acc[i]);IMU_file.print(", ");}
-  for(int i = 0;i <3; i++) {IMU_file.print(IMU_Gyro[i]);if (i != 2) IMU_file.print(", ");}
-  IMU_file.println(" ");
-  IMU_file.close();
-  delay(50);
+  Data += timestamp;
 
-  // BMP
+  Add_BMP_String(Data);
+  Add_IMU_String(Data);
+  Add_GPS_String(Data);
+  Add_TEMT_String(Data);
 
-  File BMP_file = SD.open("BMP_Data.txt", FILE_WRITE);
+  File Log = SD.open(date + "Log.txt", FILE_WRITE);
 
-  BMP_file.print(timestamp);
-  BMP_file.print(databank.temperature);
-  BMP_file.print(", ");
-  BMP_file.print(databank.pressure);
-  BMP_file.print(", ");
-  BMP_file.print(databank.altitude);
-  BMP_file.println(" ");
-  BMP_file.close();
+  Log.println(Data);
 
-  // TEMT
-  delay(50);
-
-  File TEMT_file = SD.open("Light_D.txt", FILE_WRITE);
-  
-  TEMT_file.print(timestamp);
-  TEMT_file.println(databank.light_level);
-  TEMT_file.close();
-  delay(50);
-  // GPS
-
-  File GPS_file = SD.open("GPS_Data.txt", FILE_WRITE);
-
-  GPS_file.print(timestamp);
-  GPS_file.print(databank.latitude, 5);
-  GPS_file.print(", ");
-  GPS_file.println(databank.longitude, 5);
-  GPS_file.close();
-
+  Log.close();
 }
 
 String getCurrentTimeString(){

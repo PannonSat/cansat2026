@@ -1,6 +1,10 @@
 #include <Arduino.h>
 #include <TEMT6000.h>
+
+#include "USB_Serial.h"
+#include "LED.h"
 #include "TEMT.h"
+#include "DataBank.h"
 
 float Sensor1_value = 0;
 float Sensor2_value = 0;
@@ -31,13 +35,12 @@ void calc_TEMT_Data(){
 
 void TEMT_init(){
   // no init for TEMT (yet)
-  Serial.println("TEMT succesfully initialized!");
+  LOG("TEMT succesfully initialized!");
   //SHORT LED BEEP
-  digitalWrite(2, HIGH);
-  delay(100);
-  digitalWrite(2, LOW);
+  LED_beep(100);
   TEMT_initialized = true;
 }
+
 void TEMT_run(){
   // returns the analog value in LUX
 
@@ -46,7 +49,5 @@ void TEMT_run(){
   Sensor3_value = lux3.readLUX();
 
   calc_TEMT_Data();
-}
-float get_TEMT_Data(){
-  return TEMT_Data;
+  MainBank.TEMT.Write_TEMT(TEMT_Data);
 }

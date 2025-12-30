@@ -1,15 +1,18 @@
 #include <Arduino.h>
-#include "GPS.h"
 #include <TinyGPS++.h>
+
+#include "USB_Serial.h"
+#include "GPS.h"
+#include "LED.h"
+#include "DataBank.h"
 
 TinyGPSPlus gps;
 
-//Important bools for the GPS controll
+//Important bools for the GPS control
 bool GPS_initialized = false;
 bool home_set = false;
 bool GPS_updated = false;
 
-double home_lat, home_lng;
 static const uint32_t GPSBaud = 9600;
 
 double GPS_Data[4] = {0};
@@ -19,11 +22,9 @@ void GPS_init(void){
   Serial1.begin(GPSBaud);
   
   //SHORT LED BEEP    
-  digitalWrite(2, HIGH);
-  delay(100);
-  digitalWrite(2, LOW);
+  LED_beep(100);
 
-  Serial.println("GPS initialized!");
+  LOG("GPS initialized!");
   GPS_initialized = true;
 
 }
@@ -39,8 +40,8 @@ void GPS_run(){
   // If tested via USB Serial very handy
   if (gps.satellites.isUpdated()) {
     // Now you can print your data safely
-    Serial.print("Sats: ");
-    Serial.println(gps.satellites.value());
+    LOG("Sats: ");
+    LOG(gps.satellites.value());
   }
   // Runs only once
   if (gps.location.isValid() && !home_set)
@@ -51,39 +52,40 @@ void GPS_sethome(){
   // Safety Gate: Only set Home if the GPS signal is strong (HDOP < 2.0 is good)
   // and we haven't set it yet.
   if (gps.hdop.hdop() < 2.0) {
-    home_lat = gps.location.lat();
-    home_lng = gps.location.lng();
+    double home_lat = gps.location.lat();
+    double home_lng = gps.location.lng();
      
     // Visual confirmation in your telemetry
     home_set = true;
-    Serial.println("Locked home location.");
-    Serial.print("Lat: "); Serial.println(home_lat, 6);
-    Serial.print("Lng: "); Serial.println(home_lng, 6);
+    LOGln("Locked home location.");
+    LOG("Lat: "); LOGln_multiple(home_lat, 6);
+    LOG("Lng: "); LOGln_multiple(home_lng, 6);
+
+    MainBank.GPS.Write_GPS_home(home_lat, home_lng);
   }
-}
-
-double* get_Home_Location(){
-  double Home_Loc[2] = {0};
-  Home_Loc[0] = home_lat;
-  Home_Loc[1] = home_lng;
-
-  return Home_Loc;
 }
 
 double* get_GPS_Data(){
+  double course, speed, lat, lng;
   if (gps.location.isUpdated()){
+  
     GPS_updated = true;
-    GPS_Data[0] = gps.location.lat();
-    GPS_Data[1] = gps.location.lng();
-    delay(30); // For the IMU logic to run
+    lat = gps.location.lat();
+    lng = gps.location.lng();
+
+     // For the IMU logic to run
     if(gps.speed.isUpdated())
-      GPS_Data[2] = gps.speed.kmph();
+      speed = gps.speed.kmph();
+      MainBank.GPS.Write_GPS_reading(lat, lng, course, speed, GPS_updated);
 
     if(gps.course.isUpdated())
-      GPS_Data[3] = gps.course.deg();
+      course = gps.course.deg();
+      MainBank.GPS.Write_GPS_reading(lat, lng, course, speed, GPS_updated);
   }
   else{
     // return the old data if not updated
+    GPS_updated = false;
+    MainBank.GPS.Write_GPS_reading(lat, lng, course, speed, GPS_updated);
   }
 
   return GPS_Data;

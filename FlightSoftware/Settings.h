@@ -10,3 +10,18 @@
   #define LOGln(x) ;
   #define LOGln_multiple(x, y) ;
 #endif
+
+
+struct SystemStatus {
+  bool sd   = false;
+  bool bmp  = false;
+  bool imu  = false;
+  bool gps  = false;
+  bool temt = false;
+  // Checks if everything has initialized properly
+  bool ready() const {
+    return sd && bmp && imu && gps && temt;
+  }
+};
+
+extern SystemStatus Status;

@@ -25,8 +25,8 @@ void GPS_init(void){
   LED_beep(100);
 
   LOG("GPS initialized!");
-  GPS_initialized = true;
 
+  Status.gps = true;
 }
 
 void GPS_run(){

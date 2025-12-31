@@ -22,7 +22,7 @@ void SD_init(){
     //Short LED beep
     LED_beep(100);
 
-    SD_initialized = true;
+    Status.sd = true;
     LOG("SD succesfully initialized!");
     start_time = millis();
   }

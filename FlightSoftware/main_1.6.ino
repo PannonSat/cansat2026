@@ -43,7 +43,7 @@ int main_Init(){
   GPS_init();
   delay(50);
 
-  if (SD_initialized && BMP_initialized && IMU_initialized && TEMT_initialized && GPS_initialized){
+  if (Status.ready()){
     // BEEP LED long
     LED_beep(2000);
   }

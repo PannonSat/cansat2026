@@ -16,8 +16,6 @@ TEMT6000 lux1(A0, 5, 1023);
 TEMT6000 lux2(A1, 5, 1023);
 TEMT6000 lux3(A2, 5, 1023);
 
-bool TEMT_initialized = false;
-
 void calc_TEMT_Data(){
   // Calculates the data from the pair that varies the least
   
@@ -38,7 +36,7 @@ void TEMT_init(){
   LOG("TEMT succesfully initialized!");
   //SHORT LED BEEP
   LED_beep(100);
-  TEMT_initialized = true;
+  Status.temt = true;
 }
 
 void TEMT_run(){

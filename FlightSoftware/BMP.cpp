@@ -9,7 +9,6 @@
 
 //GLOBALS
 Adafruit_BMP280 bmp;
-bool BMP_initialized = false;
 
 static float calc_Altitude(float pressure);
 
@@ -22,7 +21,7 @@ void BMP_init(){
     //SHORT LED BEEP
     LED_beep(100);
     LOG("BMP280 init succesful!");
-    BMP_initialized = true;
+    Status.bmp = true;
   }
 
   bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,   /* Operating Mode. */

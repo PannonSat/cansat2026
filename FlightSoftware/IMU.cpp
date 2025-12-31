@@ -18,9 +18,6 @@ float tilt_x, tilt_y;
 
 // Max spinrate when IMU is the primary for the calculation
 float TUMBLE_THRESHOLD = 200;
-
-bool IMU_initialized = false;
-
 // Helper functions, Callibration
 
 float get_MetersFromStartLat(double current_lat) {
@@ -91,7 +88,7 @@ void IMU_init(void){
     LOG("IMU Failed to initialize!");
   }else{
     LED_beep(100);
-    IMU_initialized = true;
+    Status.imu = true;
   }
   Calibrate_IMU();
   last_alt = MainBank.BMP.altitude;

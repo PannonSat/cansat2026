@@ -53,4 +53,3 @@ void TEMT_DC::checkLight(float light_level) {
 }
 
 DataBank MainBank;
-

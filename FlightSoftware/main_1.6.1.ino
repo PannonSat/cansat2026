@@ -19,7 +19,6 @@
 #define IMU_Calc_ch 6
 #define GPS_ch 2
 #define SD_ch 3
-#define DataBank_ch 4
 #define TEMT_ch 5
 
 
@@ -52,7 +51,6 @@ int main_Init(){
   SwTimer_Set_Continues(IMU_Calc_ch, 50, IMU_main_logic);
   SwTimer_Set_Continues(SD_ch, 200, SD_run);
   SwTimer_Set_Continues(BMP_ch, 100, BMP_run);
-  //SwTimer_Set_Continues(DataBank_ch, 100, DataBank_run);
   SwTimer_Set_Continues(GPS_ch, 5, GPS_run);
   SwTimer_Set_Continues(TEMT_ch, 20, TEMT_run);
 

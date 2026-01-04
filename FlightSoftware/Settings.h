@@ -11,6 +11,9 @@
   #define LOGln_multiple(x, y) ;
 #endif
 
+#define CET_OFFSET_HOURS 1
+#define STARTUP_TIME_MIN 5
+
 
 struct SystemStatus {
   bool sd   = false;

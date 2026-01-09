@@ -46,11 +46,11 @@ void GPS_DC::Write_GPS_home(double h_lat, double h_lng) {
 
 void TEMT_DC::Write_TEMT(float light_level) {
   luminance = light_level;
-}
-
-void TEMT_DC::checkLight(float light_level) {
-  isLight = (light_level > 0.5f);   // example logic — adjust as needed
+  // also calculate if the light level is enough
+  if(luminance > LIGHT_BORDER)
+    isLight = true;
+  else
+    isLight = false;
 }
 
 DataBank MainBank;
-

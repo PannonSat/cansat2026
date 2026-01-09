@@ -7,26 +7,63 @@
 #include "LED.h"
 #include "DataBank.h"
 
+#define CET_OFFSET_HOURS 1
+
 const int CS_PIN = 5;
 bool SD_initialized = false;
 unsigned long start_time = 0;
 
+bool timeSynced = false;
+unsigned long baseMillis = 0;
 
-String getCurrentTimeString();
+int baseDay, baseMonth;
+int baseHour, baseMin, baseSec;
+
+// ****** Timestamp Functions ******
+
+void syncTime(){
+
+  if (timeSynced) return ;
+
+  auto &t = MainBank.GPS.home_time;
+
+  baseDay   = t.day;
+  baseMonth = t.month;
+
+  baseHour = t.hour + CET_OFFSET_HOURS;
+  baseMin  = t.minutes;
+  baseSec  = t.seconds;
 
 
-void SD_init(){
-  if (!SD.begin(CS_PIN)) {
-    LOG("Card failed or not present");
-  }else{
-    //Short LED beep
-    LED_beep(100);
-
-    Status.sd = true;
-    LOG("SD succesfully initialized!");
-    start_time = millis();
-  }
+  baseMillis = millis();
+  timeSynced = true;
 }
+
+String getTimestamp()
+{
+  if (!timeSynced)
+    return "NO_TIME";
+
+  unsigned long elapsed = (millis() - baseMillis) / 1000;
+  int ms = (millis() - baseMillis) % 1000;
+
+  int sec = baseSec  + elapsed;
+  int min = baseMin  + sec / 60;   sec %= 60;
+  int hr  = baseHour + min / 60;   min %= 60;
+
+  char buf[32];
+  sprintf(buf,
+          "%02d-%02d %02d:%02d:%02d.%03d",
+          baseMonth, baseDay,
+          hr, min, sec, ms);
+
+  return String(buf);
+}
+
+
+
+
+// ****** Log formater functions ******
 
 void Add_BMP_String(String& Data){
   String BMP_Data = " ";
@@ -80,13 +117,30 @@ void Add_TEMT_String(String& Data){
   Data += TEMT_Data;
 }
 
+// ****** Main Functions ******
+
+void SD_init(){
+  if (!SD.begin(CS_PIN)) {
+    LOG("Card failed or not present");
+  }else{
+    //Short LED beep
+    LED_beep(100);
+
+    Status.sd = true;
+    LOG("SD succesfully initialized!");
+    start_time = millis();
+  }
+}
+
 void SD_run(){
   // IMU, GPS, BMP, TEMT
   // CSV format
-  
-  String current_time = getCurrentTimeString();
+  if (MainBank.GPS.home_time.synced && !timeSynced)
+    syncTime();
+
+  String current_time = getTimestamp();
+
   String timestamp = "[" + current_time + "]: ";
-  String date = "12.30 "; // CHANGE MANUALLY BEFORE START
 
   String Data = " ";
   
@@ -97,24 +151,9 @@ void SD_run(){
   Add_GPS_String(Data);
   Add_TEMT_String(Data);
 
-  File Log = SD.open(date + "Log.txt", FILE_WRITE);
+  File Log = SD.open("Log.txt", FILE_WRITE);
 
   Log.println(Data);
 
   Log.close();
-}
-
-String getCurrentTimeString(){
-  unsigned long ms = millis() - start_time;
-  unsigned long totalSeconds = ms / 1000UL;
-  unsigned long minutes = totalSeconds / 60UL;
-  unsigned long seconds = totalSeconds % 60UL;
-  unsigned long millisPart = ms % 1000UL;
-
-  char buffer[20];
-  snprintf(buffer, sizeof(buffer), "%02lu:%02lu:%03lu",
-           minutes, seconds, millisPart);
-
-  return String(buffer);
-  // NOTE: OVERFLOWS AFTER 49 days 
 }

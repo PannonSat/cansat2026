@@ -30,6 +30,15 @@ class GPS_DC{
 
     double home_lat;
     double home_lng;
+    
+    // In UTC (!!)
+    struct time{
+      bool synced;
+      int year;   int day;  int seconds; int minutes;
+      int month;  int hour; int centiseconds; 
+    };
+
+    time home_time;
     // The direction of heading in degrees
     double course;
     // Speed in km/h
@@ -53,9 +62,8 @@ class TEMT_DC{
     float luminance;
 
     bool isLight;
-
+    // Writes TEMT sensor readings, and calculates isLight
     void Write_TEMT(float light_level);
-    void checkLight(float light_level);
 };
 
 class DataBank{

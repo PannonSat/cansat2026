@@ -11,7 +11,18 @@
 Adafruit_BMP280 bmp;
 
 static float calc_Altitude(float pressure);
+ 
+float altitude_offset = 0;
 
+void calibrate_BMP(){
+  float sum = 0;
+    for(int i=0; i<50; i++) {
+        sum += IMU.readPressure(); // Replace with your BMP library call
+        delay(10);
+    }
+    groundPressure = sum / 50.0;
+    altitude_offset = calc_Altitude(groundPressure);
+}
 
 void BMP_init(){
   bool status = bmp.begin();
@@ -22,6 +33,8 @@ void BMP_init(){
     LED_beep(100);
     LOG("BMP280 init succesful!");
     Status.bmp = true;
+    // Setting the ground level
+    calibrate_BMP();
   }
 
   bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,   /* Operating Mode. */
@@ -45,6 +58,6 @@ static float calc_Altitude(float pressure){
   pressure /= 100; // important if you don't want to measure pressure twice
   altitude = 44330 * (1.0 - pow(pressure / 1013.25, 0.1903));
 
-  return altitude;
+  return altitude - altitude_offset;
 }
 

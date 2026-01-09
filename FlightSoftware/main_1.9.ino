@@ -19,11 +19,7 @@
 #define IMU_Calc_ch 6
 #define GPS_ch 2
 #define SD_ch 3
-#define DataBank_ch 4
 #define TEMT_ch 5
-
-
-#define STARTUP_TIME_MIN 5
 
 
 int main_Init(){
@@ -52,7 +48,6 @@ int main_Init(){
   SwTimer_Set_Continues(IMU_Calc_ch, 50, IMU_main_logic);
   SwTimer_Set_Continues(SD_ch, 200, SD_run);
   SwTimer_Set_Continues(BMP_ch, 100, BMP_run);
-  //SwTimer_Set_Continues(DataBank_ch, 100, DataBank_run);
   SwTimer_Set_Continues(GPS_ch, 5, GPS_run);
   SwTimer_Set_Continues(TEMT_ch, 20, TEMT_run);
 
@@ -67,7 +62,10 @@ int main(){
 
   
   delay(300);
-  Serial.begin(115200);
+
+  if(PRINT)
+    Serial.begin(115200);
+
   delay(100);
 
   main_Init(); 
@@ -91,6 +89,8 @@ int main(){
 
   */
 
+  /*
+  int Operation_Mode = 0;
   float curr_time = millis();
   float start_time = curr_time;
 
@@ -98,25 +98,36 @@ int main(){
 
   while(curr_time-start_time < STARTUP_TIME_MIN*60000){
     curr_time = millis();
+    Operation_Mode = 1;
+    SwTimer_Run();
+  }
+  // Waiting to be placed inside
+  while(MainBank.TEMT.isLight){
+    Operation_Mode = 0;
+    SwTimer_Run();
+    delay(10);
+  }
+
+  // In rocket
+  while(MainBank.TEMT.isLight){
+    Operation_Mode = 2;
     SwTimer_Run();
   }
 
-  /*
-  Something like this; got no working stuff yet.
+  //Descending
+  curr_time = millis();
+  start_time = curr_time;
 
-  while(inRocket){
-    //ami még kell init
-    inRocket ~ fény
-    ha sötét
-  }
-  while(Light){
-    // ha fény van kezdje el
-  }
-  while(mozog){
+  // Around 5 mins so the GPS, everything initializes
+
+  while(curr_time-start_time < STARTUP_TIME_MIN*60000){
+    curr_time = millis();
+    Operation_Mode = 3;
     SwTimer_Run();
+  }
   */
-  // Landing protocol
-  
+  // LANDED
+
   while(1){
     SwTimer_Run();
   }

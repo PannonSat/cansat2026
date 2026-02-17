@@ -7,8 +7,6 @@ class BMP_DC{
     float temperature;
     float altitude;
 
-    unsigned long int timestamp;
-
     void Write_BMP_Data(float pres, float temp, float alt);
 };
 
@@ -17,9 +15,13 @@ class IMU_DC{
     float ax, ay, az;
     float gx, gy, gz;
 
-    unsigned long int timestamp;
+    float tilt_x, tilt_y;
+    float vel_x, vel_y;
+    float V_vertical;
+    float spinrate;
 
     void Write_IMU_reading(float accx, float accy, float accz, float gyrx, float gyry, float gyrz);
+    void Write_IMU_calculations(float t_x, float t_y, float v_x, float v_y, float v_vert, float spin);
 
 };
 
@@ -30,6 +32,15 @@ class GPS_DC{
 
     double home_lat;
     double home_lng;
+    
+    // In UTC (!!)
+    struct time{
+      bool synced;
+      int year;   int day;  int seconds; int minutes;
+      int month;  int hour; int centiseconds; 
+    };
+
+    time home_time;
     // The direction of heading in degrees
     double course;
     // Speed in km/h
@@ -42,6 +53,7 @@ class GPS_DC{
     unsigned long timestamp;
     // Writes to the DataBank: latitude, longitude, course
     void Write_GPS_reading(double lat, double lng, double cor, double spd, bool update);
+    void Log_Pred_dist(float pred_dist);
     // Writes the base home location to the DataBank
     void Write_GPS_home(double h_lat, double h_lng);
 
@@ -53,9 +65,8 @@ class TEMT_DC{
     float luminance;
 
     bool isLight;
-
+    // Writes TEMT sensor readings, and calculates isLight
     void Write_TEMT(float light_level);
-    void checkLight(float light_level);
 };
 
 class DataBank{
@@ -64,6 +75,12 @@ class DataBank{
     IMU_DC IMU;
     GPS_DC GPS;
     TEMT_DC TEMT;
+
+    short Operation_Mode;
+    bool Magnet_on;
+
+    void Write_Op_Mode(short OP_mode);
+    void Write_Magnet_Mode(bool mode);
 };
 
 

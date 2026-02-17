@@ -35,7 +35,7 @@ void TEMT_init(){
   // no init for TEMT (yet)
   LOG("TEMT succesfully initialized!");
   //SHORT LED BEEP
-  LED_beep(100);
+  LED_beep(100, 1);
   Status.temt = true;
 }
 

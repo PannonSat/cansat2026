@@ -17,16 +17,19 @@ void BMP_DC::Write_BMP_Data(float pres, float temp, float alt) {
   pressure = pres;
   temperature = temp;
   altitude = alt;
-
-  timestamp = millis();
 }
 
 void IMU_DC::Write_IMU_reading(float accx, float accy, float accz,
                                float gyrx, float gyry, float gyrz) {
   ax = accx; ay = accy; az = accz;
   gx = gyrx; gy = gyry; gz = gyrz;
+}
 
-  timestamp = millis();
+void IMU_DC::Write_IMU_calculations(float t_x, float t_y, float v_x, float v_y, float v_vert, float spin){
+  tilt_x = t_x; tilt_y = t_y;
+  vel_x = v_x; vel_y = v_y;
+  V_vertical = v_vert;
+  spinrate = spin;
 }
 
 void GPS_DC::Write_GPS_reading(double lat, double lng, double cor, double spd, bool update){
@@ -35,8 +38,10 @@ void GPS_DC::Write_GPS_reading(double lat, double lng, double cor, double spd, b
   course = cor;
   speed = spd;
   isUpdated = update;
-  
-  timestamp = millis();
+}
+
+void GPS_DC::Log_Pred_dist(float pred_dist){
+  predicted_current_distance = pred_dist;
 }
 
 void GPS_DC::Write_GPS_home(double h_lat, double h_lng) {
@@ -46,11 +51,19 @@ void GPS_DC::Write_GPS_home(double h_lat, double h_lng) {
 
 void TEMT_DC::Write_TEMT(float light_level) {
   luminance = light_level;
+  // also calculate if the light level is enough
+  if(luminance > LIGHT_BORDER)
+    isLight = true;
+  else
+    isLight = false;
 }
 
-void TEMT_DC::checkLight(float light_level) {
-  isLight = (light_level > 0.5f);   // example logic — adjust as needed
+void DataBank::Write_Op_Mode(short OP_mode){
+  Operation_Mode = OP_mode;
+}
+
+void DataBank::Write_Magnet_Mode(bool mode){
+  Magnet_on = mode;
 }
 
 DataBank MainBank;
-

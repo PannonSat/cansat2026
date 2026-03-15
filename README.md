@@ -33,4 +33,4 @@ Let's look at some key elements of it:
 
 
 ## Author: 
-Sárossy Illés - the code wizzard of PannonSat
+Illés - the code wizzard of PannonSat

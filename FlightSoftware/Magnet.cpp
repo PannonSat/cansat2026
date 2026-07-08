@@ -4,15 +4,17 @@
 #include "DataBank.h"
 
 void Magnet_init(){
-  pinMode(8, OUTPUT);
+  pinMode(20, OUTPUT);
 }
 
 void Magnet_ON(){
-  digitalWrite(8, HIGH);
+  pinMode(20, OUTPUT);
+  digitalWrite(20, HIGH);
   MainBank.Write_Magnet_Mode(true);
 }
 
 void Magnet_OFF(){
-  digitalWrite(8, LOW);
+  pinMode(20, OUTPUT);
+  digitalWrite(20, LOW);
   MainBank.Write_Magnet_Mode(false);
 }

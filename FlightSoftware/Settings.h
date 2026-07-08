@@ -2,10 +2,10 @@
 
 #include "SD1.h"
 #include "SoftwareSerial.h"
-
+ 
 #define PRINT 0
-
-#if PRINT == 1 
+// Switch between Serial modes.
+#if PRINT == 1
   #define LOG(x) Serial.print(x)
   #define LOGln(x) Serial.println(x)
   #define LOGln_multiple(x, y) Serial.println(x, y)
@@ -26,12 +26,9 @@
 #define CET_OFFSET_HOURS 1
 #define STARTUP_TIME_MIN 5
 // In LUX
-#define LIGHT_BORDER 200
+#define LIGHT_BORDER 225 // kukás tesztnél oly 3 LUX volt.
 // Spin rate in case it fails
-#define TUMBLE_THRESHOLD 70
-
-#define LoRa_RX 3
-#define LoRa_TX 4
+#define TUMBLE_THRESHOLD 150
 
 
 
@@ -43,6 +40,7 @@ struct SystemStatus {
   bool imu  = false;
   bool gps  = false;
   bool temt = false;
+  bool picture = true;
   // Checks if everything has initialized properly
   bool ready() const {
     return sd && bmp && imu && gps && temt;

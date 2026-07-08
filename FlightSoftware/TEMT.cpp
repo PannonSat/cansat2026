@@ -47,5 +47,11 @@ void TEMT_run(){
   Sensor3_value = lux3.readLUX();
 
   calc_TEMT_Data();
+  
+  
+  Serial.print("TEMT_Data: ");
+  Serial.println(TEMT_Data);
+  
+
   MainBank.TEMT.Write_TEMT(TEMT_Data);
 }

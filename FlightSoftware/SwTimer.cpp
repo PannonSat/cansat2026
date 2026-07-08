@@ -2,7 +2,7 @@
 #include "SwTimer.h"
 
 
-#define MAX_TIMER 10  // < Maximal number of timers
+#define MAX_TIMER 12  // < Maximal number of timers
 
 
 static volatile unsigned long counters[MAX_TIMER];   // < Counters for Software Timer channels

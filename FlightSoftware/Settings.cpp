@@ -1,5 +1,5 @@
 #include <Arduino.h>
 #include "Settings.h"
 
-SoftwareSerial ESP(D4, D5);
+SoftwareSerial ESP(D5, D4);
 SystemStatus Status;

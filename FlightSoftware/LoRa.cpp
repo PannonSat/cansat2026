@@ -1,6 +1,6 @@
 
+
 #include <Arduino.h>
-#include <Wire.h>
 #include "Settings.h"
 #include "DataBank.h"
 #include "LoRa.h"
@@ -77,6 +77,7 @@ void Fill_Packet(){
   Packet.OperationMode = MainBank.Operation_Mode;
   Packet.Magnet_on = MainBank.Magnet_on;
 }
+
 String convertToHex(void* ptr, size_t size) {
   // x ms
   uint8_t* bytes = (uint8_t*)ptr;
@@ -102,29 +103,25 @@ void LoRa_send_command(String cmd) {
             response += (char)Serial1.read();
           }
           response.trim();
-          LOG(response);
         }
       }
 
 }
 void read_ESP() {
-  // 1. CLEAR THE BUFFER (PRE-REQUEST)
-  // Ensures no echoes or noise from the previous cycle trigger a false start
   while (ESP.available() > 0) ESP.read();
-
-  // 2. REQUEST DATA
+  if(Status.picture ==1){}else return;
   ESP.print('R');
-
   // 3. SEEK START MARKER 's'
   unsigned long timeout = millis();
   bool foundStart = false;
-  while (millis() - timeout < 1000) {
+  
+  while (millis() - timeout < 500) {
     if (ESP.available() > 0 && ESP.read() == 's') {
       foundStart = true;
       break;
     }
   }
-
+  
   if (!foundStart) {
     LOGln("Error: Connection Timeout (No 's')");
     return;
@@ -146,14 +143,12 @@ void read_ESP() {
       
       // Update global packet variable
       ESP_PACKET = String(packet); 
-      LOGln("Success: Packet Captured");
+      Status.picture = false;
 
 
       // 6. MANDATORY COOL-DOWN (POST-READ)
       // Drains any remaining bits and creates a 50ms silence gap
-      while(ESP.available() > 0) ESP.read(); 
-      delay(50); 
-      
+      while(ESP.available() > 0) ESP.read();   
     } else {
       LOGln("Error: Frame Mismatch (No 'e')");
     }
@@ -167,7 +162,7 @@ void LoRa_init(){
   Serial1.begin(115200); // could try 460,800 or higher
   ESP.begin(115200);
   LOG("LoRa init success!");
-  LED_beep(100, 2);
+  LED_beep(100, 1);
   // 1. WAKE UP / AUTO-BAUD
   // Send a dummy character and wait
 
@@ -176,12 +171,11 @@ void LoRa_init(){
   Serial1.print("sys reset");
 
   LOG("After sys reset!");
-  
+  LOGln("MARK");
   delay(1000); // The module takes a full second to reboot
-  LED_beep(500, 2);   // Allow P2P mode
   LoRa_send_command("radio set sf sf7");
   LoRa_send_command("radio set mod lora");
-  LoRa_send_command("radio set freq 868100000");
+  LoRa_send_command("radio set freq 869100000");
   LoRa_send_command("radio set pwr 20");
   LoRa_send_command("radio set pa on");
   LoRa_send_command("radio set bw 250");
@@ -189,24 +183,23 @@ void LoRa_init(){
   LoRa_send_command("radio set crc on");
   LoRa_send_command("radio set wdt 0");
   LoRa_send_command("radio set prlen 8");
-
-  LED_beep(500, 2);
+  
   espBuffer = "";
   // Turn ESP on
-  pinMode(6, OUTPUT);
-  digitalWrite(6, HIGH);
-
+  //removed, see main.
 }
 
 void send_ESP(){
-  //Serial.println(ESP_PACKET.length());
   if(ESP_PACKET.length() == 256 && Last_ESP_Packet != ESP_PACKET){
     // Send every chunk twice just in case
     Serial1.print("radio tx "+ ESP_PACKET + " 1\r\n");
+    //Serial.println("SENT ESP");
+    Status.picture = true;
     Last_ESP_Packet = ESP_PACKET;
   }
 }
 unsigned long last_lora_time = 0;
+int false_count = 0;
 
 void LoRa_run(){
   // Every fifteenth packet sends an image part
@@ -222,7 +215,7 @@ void LoRa_run(){
   if (packet_count < 15){
     Fill_Packet();
     String Full_Packet = convertToHex(&Packet, sizeof(Packet));
-    Serial.println(Full_Packet);
+    //Serial.println(Full_Packet);
     if(Full_Packet.length() == 126){
       Serial1.print("radio tx " + Full_Packet + " 1\r\n");
     }else{
@@ -235,4 +228,18 @@ void LoRa_run(){
 
   last_tx_time = millis();
   packet_count++;
+
+  if(Status.picture == 0){
+    false_count++;
+  }else{
+    false_count = 0;
+  }
+
+  if(false_count >= 35){
+    Status.picture = true;
+    false_count = 0;
+  }
+  //Serial.println("Added packet");
+  //Serial.print("picture: ");
+  //Serial.println(String(Status.picture));
 }

@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <SPI.h>
-#include <Wire.h>
 #include "SD1.h"
 #include "Settings.h"
 #include "LED.h"
@@ -96,6 +95,7 @@ void Add_Calc_String(String& Data){
   Calc += String(MainBank.IMU.V_vertical); Calc += ", ";
   Calc += String(MainBank.IMU.vel_x); Calc += ", ";
   Calc += String(MainBank.IMU.vel_y); Calc += ", ";
+  Calc += String(MainBank.GPS.predicted_current_distance, 6); Calc += ", ";
 
   Data += Calc;
 }
@@ -103,9 +103,9 @@ void Add_Calc_String(String& Data){
 void Add_GPS_String(String& Data){
   String GPS_Data = " ";
 
-  GPS_Data += String(MainBank.GPS.latitude);
+  GPS_Data += String(MainBank.GPS.latitude, 6);
   GPS_Data += ", ";
-  GPS_Data += String(MainBank.GPS.longitude);
+  GPS_Data += String(MainBank.GPS.longitude, 6);
   GPS_Data += ", ";
   GPS_Data += String(MainBank.GPS.course);
   GPS_Data += ", ";
@@ -130,12 +130,13 @@ void Add_TEMT_String(String& Data){
 void SD_init(){
   if(ESP.available()){
     LED_beep(100, 1);
-
     Status.sd = true;
     LOG("SD succesfully initialized!");
   }else{
     LOG("SD FAILED, check Serial");
+    Status.sd = true;
   }
+
 }
 
 void SD_run(){
@@ -147,11 +148,16 @@ void SD_run(){
   String current_time = getTimestamp();
 
   String timestamp = "[" + current_time + "]: ";
-
+  
   String Data = " ";
   
+  float sattime = millis();
   Data += timestamp;
-
+  
+  //LOGln(timestamp);
+  Data += String(sattime);
+  Data += ", ";
+  
   Add_BMP_String(Data);
   Add_IMU_String(Data);
   Add_Calc_String(Data);

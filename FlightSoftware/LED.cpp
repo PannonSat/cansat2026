@@ -4,25 +4,26 @@
 #include "LED.h"
 
 void LED_init(){
-  pinMode(18, OUTPUT);
+  pinMode(21, OUTPUT);
   pinMode(19, OUTPUT);
   LOG("LED succesfully initialized! ");
 }
+// Removed the pinModes might be needed back.
 
 void LED_beep(float length, int LED){
   if(LED == 1){
-    digitalWrite(18, HIGH);
+    digitalWrite(21, HIGH);
     delay(length);
-    digitalWrite(18, LOW);
+    digitalWrite(21, LOW);
   }else{
     digitalWrite(19, HIGH);
     delay(length);
-    digitalWrite(19, LOW);
+    digitalWrite(13, LOW);
   }
 }
 
 void LED_status(){
   digitalWrite(19, HIGH);
-  delay(1000);
+  delay(500);
   digitalWrite(19, LOW);
 }

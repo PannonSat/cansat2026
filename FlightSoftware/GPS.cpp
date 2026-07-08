@@ -14,8 +14,8 @@ bool GPS_initialized = false;
 bool home_set = false;
 bool GPS_updated = false;
 
-SoftwareSerial GPS(D2, D3);
-static const uint32_t GPSBaud = 9600; // or 9600 if this shi doesn't work
+SoftwareSerial GPS(25, 15);
+static const uint32_t GPSBaud = 9600; 
 
 double GPS_Data[4] = {0};
 void GPS_sethome();
@@ -33,13 +33,15 @@ void GPS_init(void){
 void GPS_run(){
   // Read ONE BYTE and feed it directly to TinyGPS++
   int status = GPS.available();
-  double course, speed, lat, lng;
-
   if (status > 0){
     char c = GPS.read();
     gps.encode(c);
+    //Serial.print(c);
   }
+}
 
+void GPS_log(){
+  double course, speed, lat, lng;
   // If tested via USB Serial very handy
   if (gps.satellites.isUpdated()) {
     // Now you can print your data safely
@@ -51,21 +53,28 @@ void GPS_run(){
     LOGln("GPS COLD START COMPLETED IN: " + String(millis() / 60000));
     GPS_sethome();
   }
+  lat = gps.location.lat();
+  //LOGln(lat);
+  lng = gps.location.lng();
+  //LOGln(lng);
+
+  // For the IMU logic to run
+  if(gps.speed.isUpdated() && gps.speed.isValid()){
+    speed = gps.speed.kmph();
+    LOG("GPS speed: ");
+    LOGln(speed);
+    MainBank.GPS.Write_GPS_reading(lat, lng, course, speed, GPS_updated);
+  }
+  
+  if(gps.course.isUpdated() && gps.course.isValid()){
+      course = gps.course.deg();
+      MainBank.GPS.Write_GPS_reading(lat, lng, course, speed, GPS_updated);
+  }
 
   if (gps.location.isUpdated()){
-  
     GPS_updated = true;
     lat = gps.location.lat();
     lng = gps.location.lng();
-
-     // For the IMU logic to run
-  if(gps.speed.isUpdated())
-    speed = gps.speed.kmph();
-    MainBank.GPS.Write_GPS_reading(lat, lng, course, speed, GPS_updated);
-
-  if(gps.course.isUpdated())
-    course = gps.course.deg();
-    MainBank.GPS.Write_GPS_reading(lat, lng, course, speed, GPS_updated);
   }
   else{
     // return the old data if not updated
